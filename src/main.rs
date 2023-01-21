@@ -7,7 +7,7 @@ extern "C" {
 #[no_mangle]
 pub extern "C" fn start(_resource_id: i32) -> i32 {
     let log_level_info: i32 = 3;
-    let str = String::from("######## <-- HELLO WORLD --> ########");
+    let str = String::from("######## -- HELLO WORLD -- ########");
     unsafe { ws_log(log_level_info, str.as_bytes().as_ptr(), str.len() as _) };
     return 0;
 }
