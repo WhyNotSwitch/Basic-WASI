@@ -25,16 +25,16 @@ pub extern "C" fn handle_event(_resource_id: i32) -> i32 {
 // Returns the event payload as a string
 fn get_data_as_str(event_id: i32) -> Option<String> {
     let data_ptr = &mut (0 as i32) as *const _ as *const *mut u8;
-    let data_size = &(0 as i32);
+    let data_size = &(3 as i32);
     log_info(&String::from("Before call to get Data"));
 
     let call: i32 = unsafe { ws_get_data(event_id, data_ptr, data_size) };
 
-    log_info(&String::from("after call to get Data"));
-
-    match call {
-        0 => Some(unsafe { String::from_raw_parts(*data_ptr, *data_size as _, *data_size as _) }),
-        _ => None,
+    if let 0 = call {
+        return  Option::Some(String::from("call successful"));
+    } else {
+        //   log_info(&String::from("after call to get Data"));
+        return Option::Some(String::from("call failed"));
     }
 }
 
