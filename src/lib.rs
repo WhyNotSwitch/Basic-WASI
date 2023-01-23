@@ -13,22 +13,21 @@ pub extern "C" fn handle_event(_resource_id: i32) -> i32 {
     sdk::log_info(
         &format!("Handler called with event_id: {}", _resource_id));
 
-    let payload = get_data_as_str(_resource_id).unwrap();
+    let payload = get_data_as_str(_resource_id);
     sdk::log_info(&format!("event data as string: {}", payload));
     return 0;
 }
 
 // Returns the event payload as a string
-fn get_data_as_str(event_id: i32) -> Option<String> {
+fn get_data_as_str(event_id: i32) -> String {
 
-    return sdk::get_data_as_str(event_id);
-
-    // if let Some(<>) = call {
-    //     return  Option::Some(String::from("call successful"));
-    // } else {
-    //     //   log_info(&String::from("after call to get Data"));
-    //     return Option::Some(String::from("call failed"));
-    // }
+    return match sdk::get_data(event_id) {
+        Some(data) => match String::from_utf8(data) {
+            Ok(data) => data,
+            _ => String::from("convert from utf8 to string failed")
+        },
+        _ => String::from("get data from log failed")
+    };
 }
 
 pub fn main() {}
