@@ -7,7 +7,7 @@ use anyhow::{bail, Result};
 use serde_json::Value;
 use serde::{Serialize, Deserialize};
 
-use reqwest::Client;
+use reqwest_wasm::Client;
 
 extern "C" {
     fn ws_log(log_level: i32, ptr: *const u8, size: i32) -> i32;
