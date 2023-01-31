@@ -1,13 +1,16 @@
 
 // use core::slice::SlicePattern;
 
-use std::collections::HashMap;
+// use std::collections::HashMap
 
 use anyhow::{bail, Result};
 use serde_json::Value;
 use serde::{Serialize, Deserialize};
 
-use reqwest_wasm::Client;
+// use reqwest_wasm::Client;
+use bytes::Bytes;
+use http;
+use wasi_experimental_http;
 
 extern "C" {
     fn ws_log(log_level: i32, ptr: *const u8, size: i32) -> i32;
@@ -92,25 +95,21 @@ pub extern "C" fn handle_get_db_event(event_id: i32) -> i32 {
 pub async extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
     log_info(&format!("Handler called with event_id: {}", event_id));
 
-    let payload = match get_data(event_id) {
-        Some(data) => match serde_json::from_slice::<ConfirmationPayload>(data.as_slice()) {
-            Ok(data)=> data,
-            Err(error) => {
-                log_info(&format!("failed to read data json with error {}", error.to_string()));
-                return -1;
-            }
-        },
-        None => {
-            log_info(&"failed to get data");
-            return -1;
-        }
-    };
+    // let payload = match get_data(event_id) {
+    //     Some(data) => match serde_json::from_slice::<ConfirmationPayload>(data.as_slice()) {
+    //         Ok(data)=> data,
+    //         Err(error) => {
+    //             log_info(&format!("failed to read data json with error {}", error.to_string()));
+    //             return -1;
+    //         }
+    //     },
+    //     None => {
+    //         log_info(&"failed to get data");
+    //         return -1;
+    //     }
+    // };
 
-    match send_confirmation_check(&payload.confirmation_url, payload.ref_number).await {
-        Ok(_data) => log_info(&"confirmed"),
-        Err(_error) => log_info(&"failed")
-    };
-
+    send_confirmation_check();
     return 0;
 }
 
@@ -169,27 +168,28 @@ fn sink_data(data: &Value) -> Result<()> {
     set_db(&id, serde_json::to_string(&value)?.into_bytes())
 }
 
-async fn send_confirmation_check(request_url: &String, ref_id: String) -> Result<()> {
+fn send_confirmation_check() {
 
-    let client = Client::new();
-    // let res = client.get(request_url).send().await?;
+    let url = "https://postman-echo.com/post".to_string();
+    let req = http::request::Builder::new()
+        .method(http::Method::POST)
+        .uri(&url)
+        .header("Content-Type", "text/plain")
+        .header("abc", "def");
+    let b = Bytes::from("Testing with a request body. Does this actually work?");
+    let req = req.body(Some(b)).unwrap();
 
-    let res = client
-        .post(request_url)
-        // .header("accept", "application/json")
-        .body(ref_id)
-        .send()
-        .await?;
-    
-    let raw = res.text().await?;
+    let mut res = wasi_experimental_http::request(req).expect("cannot make request");
 
-    let data = match serde_json::from_str::<HashMap<String, Value>>(raw.as_str()) {
+    let res_body = match res.body_read_all() {
         Ok(data) => data,
-        Err(err) => panic!("failed with {}", err.to_string())
+        Err(error) => panic!("{:?}", error)
     };
-    
-    log_info(&data.get("body").unwrap().as_str().unwrap());
-    Ok(())
+
+    let str = std::str::from_utf8(&res_body).unwrap().to_string();
+    log_info(&format!("{:#?}", res.header_get("Content-Type".to_string())));
+    log_info(&format!("{}", str));
+    log_info(&format!("{:#?}", res.status_code));
 }
 
 // Expected Value format in json
@@ -203,11 +203,11 @@ struct Record {
     signature: String
 }
 
-#[derive(Deserialize, Debug)]
-struct ConfirmationPayload {
-    confirmation_url: String,
-    ref_number: String
-}
+// #[derive(Deserialize, Debug)]
+// struct ConfirmationPayload {
+//     confirmation_url: String,
+//     ref_number: String
+// }
 
 
 pub fn main() {}
