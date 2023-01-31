@@ -92,7 +92,7 @@ pub extern "C" fn handle_get_db_event(event_id: i32) -> i32 {
 }
 
 #[no_mangle]
-pub async extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
+pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
     log_info(&format!("Handler called with event_id: {}", event_id));
 
     // let payload = match get_data(event_id) {
@@ -171,14 +171,18 @@ fn sink_data(data: &Value) -> Result<()> {
 fn send_confirmation_check() {
 
     let url = "https://postman-echo.com/post".to_string();
+    log_info(&"no fail 1");
     let req = http::request::Builder::new()
         .method(http::Method::POST)
         .uri(&url)
         .header("Content-Type", "text/plain")
         .header("abc", "def");
-    let b = Bytes::from("Testing with a request body. Does this actually work?");
-    let req = req.body(Some(b)).unwrap();
 
+    log_info(&"no fail 2");
+    let b = Bytes::from("Testing with a request body. Does this actually work?");
+    log_info(&"no fail 3");
+    let req = req.body(Some(b)).unwrap();
+    log_info(&"no fail 4");
     let res = wasi_experimental_http::request(req).expect("cannot make request");
 
     // let res_body = match res.body_read_all() {
