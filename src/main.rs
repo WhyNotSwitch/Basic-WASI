@@ -179,16 +179,16 @@ fn send_confirmation_check() {
     let b = Bytes::from("Testing with a request body. Does this actually work?");
     let req = req.body(Some(b)).unwrap();
 
-    let mut res = wasi_experimental_http::request(req).expect("cannot make request");
+    let res = wasi_experimental_http::request(req).expect("cannot make request");
 
-    let res_body = match res.body_read_all() {
-        Ok(data) => data,
-        Err(error) => panic!("{:?}", error)
-    };
+    // let res_body = match res.body_read_all() {
+    //     Ok(data) => data,
+    //     Err(error) => panic!()
+    // };
 
-    let str = std::str::from_utf8(&res_body).unwrap().to_string();
-    log_info(&format!("{:#?}", res.header_get("Content-Type".to_string())));
-    log_info(&format!("{}", str));
+    // let str = std::str::from_utf8(&res.body_read_all()).unwrap().to_string();
+    // log_info(&format!("{:#?}", res.header_get("Content-Type".to_string())));
+    // log_info(&format!("{}", str));
     log_info(&format!("{:#?}", res.status_code));
 }
 
