@@ -124,10 +124,10 @@ pub extern "C" fn handle_get_db_event(event_id: i32) -> i32 {
 
 #[no_mangle]
 pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
-    log_info(&format!("Handler called with event_id: {}", event_id));
 
     let to = CONTRACT_ADDRESS.to_string();
 
+    log_info(&format!("Handler called with event_id: {}", event_id));
     let data = match encode_call_fn(32u64.into()) {
         Ok(res) => res,
         Err(error) => fail(format!("failed to encode contract call data with error: {}", error).as_str())
@@ -147,6 +147,7 @@ fn fail(msg: &str) -> ! {
 }
 
 fn encode_call_fn(param: U256) -> Result<Vec<u8>, ethabi::Error>{
+    log_info(format!("got here saw {}", param).as_str());
     return SIMPLE_CONTRACT
         .function("hello")?
         .encode_input(&[Token::Uint(param)]);
