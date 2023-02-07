@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 use lazy_static::lazy_static;
 
 #[allow(dead_code)]
-const CONTRACT_ADDRESS: &str = "0xb963C2c5c9d023F61E8338B85fFd58Bd0663D545";
+const CONTRACT_ADDRESS: &str = "0x590d4Fa4a508bE3aae8B473565e1aAd2D71E08d8";
 
 const ABI_STR: &str = r#"
     [
