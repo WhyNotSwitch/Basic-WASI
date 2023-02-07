@@ -140,7 +140,10 @@ pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
     
     match call_contract(&to, &hex::encode(data)) {
         None => log_info("nothing gotten from call"),
-        Some(ret) => decode_call_fn(ret).expect("ouput decode failed")
+        Some(ret) => match decode_call_fn(ret) {
+            Ok(()) => log_info(format!("so ended well").as_str()),
+            Err(error) => log_info(format!("no did not end well, got this {}", error).as_str())
+        }
     }
 
     0
