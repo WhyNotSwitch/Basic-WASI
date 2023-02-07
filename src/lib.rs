@@ -1,4 +1,6 @@
 
+use std::str::FromStr;
+
 use anyhow::{bail, Result};
 use ethabi::{Contract, Token, ethereum_types::U256};
 use serde_json::Value;
@@ -128,7 +130,7 @@ pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
     let to = CONTRACT_ADDRESS.to_string();
 
     log_info(&format!("Handler called with event_id: {}", event_id));
-    let data = match encode_call_fn(32u64.into()) {
+    let data = match encode_call_fn(U256::from_str("32").unwrap()) {
         Ok(res) => res,
         Err(error) => fail(format!("failed to encode contract call data with error: {}", error).as_str())
     };
