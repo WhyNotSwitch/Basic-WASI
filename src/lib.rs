@@ -131,10 +131,13 @@ pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
 
     log_info(&format!("Handler called with event_id: {}", event_id));
     let data = match encode_call_fn(U256::from_str("32").unwrap()) {
-        Ok(res) => res,
+        Ok(res) => {
+            log_info(format!("got res: {:?}", res).as_str());
+            res
+        },
         Err(error) => fail(format!("failed to encode contract call data with error: {}", error).as_str())
     };
-
+    
     match call_contract(&to, &hex::encode(data)) {
         None => log_info("nothing gotten from call"),
         Some(ret) => decode_call_fn(ret).expect("ouput decode failed")
