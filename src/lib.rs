@@ -130,7 +130,7 @@ pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
 
     let data = match encode_call_fn(32u64.into()) {
         Ok(res) => res,
-        Err(error) => panic!("could not encode function call data, failed with error: {}", error)
+        Err(error) => fail(format!("failed to encode contract call data with error: {}", error).as_str())
     };
 
     match call_contract(&to, &hex::encode(data)) {
@@ -139,6 +139,11 @@ pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
     }
 
     0
+}
+
+fn fail(msg: &str) -> ! {
+    log_info(msg);
+    panic!()
 }
 
 fn encode_call_fn(param: U256) -> Result<Vec<u8>, ethabi::Error>{
