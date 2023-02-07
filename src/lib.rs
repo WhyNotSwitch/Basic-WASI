@@ -8,10 +8,23 @@ use serde::{Serialize, Deserialize};
 use lazy_static::lazy_static;
 
 #[allow(dead_code)]
-const CONTRACT_ADDRESS: &str = "0xd9145CCE52D386f254917e481eB44e9943F39138";
+const CONTRACT_ADDRESS: &str = "0x8f08C83C149601DbC6ace161c3EeC5CEd015be81";
 
 const ABI_STR: &str = r#"
     [
+        {
+            "inputs": [],
+            "name": "count",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
         {
             "inputs": [
                 {
@@ -29,19 +42,6 @@ const ABI_STR: &str = r#"
                 }
             ],
             "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "count",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
             "type": "function"
         }
     ]
