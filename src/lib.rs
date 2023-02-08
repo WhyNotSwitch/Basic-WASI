@@ -63,6 +63,7 @@ extern "C" {
         return_ptr: *const *mut u8,
         return_size: *const i32,
     ) -> i32;
+    fn ws_send_tx(ptr: *const u8, size: i32) -> i32;
 }
 
 #[no_mangle]
@@ -150,14 +151,19 @@ pub extern "C" fn handle_confirmation_event(event_id: i32) -> i32 {
         },
         Err(error) => fail(format!("failed to encode contract call data with error: {}", error).as_str())
     };
-    
-    match call_contract(&to, &hex::encode(data)) {
-        None => log_info("nothing gotten from call"),
-        Some(ret) => match decode_call_fn(ret) {
-            Ok(()) => log_info(format!("so ended well").as_str()),
-            Err(error) => log_info(format!("no did not end well, got this {}", error).as_str())
-        }
+
+    match send_tx(&to, &"0".to_string(), &hex::encode(data)) {
+        Ok(()) => log_info("success"),
+        Err(error) => log_info(format!("failed with error {}", error).as_str())
     }
+    
+    // match call_contract(&to, &hex::encode(data)) {
+    //     None => log_info("nothing gotten from call"),
+    //     Some(ret) => match decode_call_fn(ret) {
+    //         Ok(()) => log_info(format!("so ended well").as_str()),
+    //         Err(error) => log_info(format!("no did not end well, got this {}", error).as_str())
+    //     }
+    // }
 
     0
 }
@@ -190,6 +196,25 @@ struct Call {
     data: String
 }
 
+#[derive(Serialize, Debug)]
+struct Tx {
+    to: String,
+    value: String,
+    data: String
+}
+
+pub fn send_tx(to: &String, value: &String, data: &String) -> Result<()> {
+    let tx = Tx {
+        to: to.clone(),
+        value: value.clone(),
+        data: data.clone(),
+    };
+    let str = serde_json::to_string(&tx)?;
+    match unsafe { ws_send_tx(str.as_ptr(), str.len() as _) } {
+        0 => Ok(()),
+        _ => bail!("fail to send tx"),
+    }
+}
 
 pub fn call_contract(to: &String, data: &String) -> Option<Vec<u8>> {
     let data_ptr = &mut (0 as i32) as *const _ as *const *mut u8;
